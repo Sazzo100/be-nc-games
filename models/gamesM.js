@@ -9,7 +9,7 @@ exports.selectCategories = () => {
 exports.selectReviews = () => {
   return pool
     .query(
-      `SELECT reviews.*, CAST(COUNT(comments.comment_id) AS INTEGER) as comment_count FROM reviews
+      `SELECT title, category, designer, owner, review_img_url, reviews.created_at, reviews.review_id, reviews.votes, CAST(COUNT(comments.comment_id) AS INTEGER) as comment_count FROM reviews
       LEFT JOIN comments
       ON reviews.review_id = comments.review_id
       GROUP BY reviews.review_id
