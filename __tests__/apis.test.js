@@ -4,7 +4,6 @@ const app = require('../app.js')
 const db = require("../db/connection.js");
 const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data");
-require("jest-sorted");
 
 beforeEach(() => {
     return seed(data);
@@ -20,6 +19,7 @@ describe('1. GET /api/categories', () => {
       .get('/api/categories')
       .expect(200)
       .then(({ body: {categories} }) => {
+        expect(categories.length).toBe(4);
         categories.forEach((category) => {
           expect(category).toEqual(
             expect.objectContaining({
@@ -38,6 +38,7 @@ describe('2. GET /api/reviews', () => {
       .get('/api/reviews')
       .expect(200)
       .then(({ body: {reviews} }) => {
+        expect(reviews.length).toBe(13);
         reviews.forEach((review) => {
           expect(review).toEqual(
             expect.objectContaining({
@@ -65,5 +66,5 @@ describe('2. GET /api/reviews', () => {
       })
     })
   });
-});;
+});
 
