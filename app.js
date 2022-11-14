@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const {
   getCategories,
-} = require('./controllers/teams-controllers');
+} = require('./controllers/gamesC.js');
 
 app.use(express.json());
 
