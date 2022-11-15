@@ -1,13 +1,14 @@
 const express = require('express');
 const app = express();
 const {
-  getCategories, getReviews,
+  getCategories, getReviews, getReviewById,
 } = require('./controllers/gamesC.js');
 
 app.use(express.json());
 
 app.get('/api/categories', getCategories);
 app.get('/api/reviews', getReviews);
+app.get('/api/reviews/:review_id', getReviewById);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Route not found" });
@@ -16,7 +17,7 @@ app.all("/*", (req, res) => {
 // PSQL Error Handling
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
-      res.status(400).send({ msg: "Invalid id" });
+      res.status(400).send({ msg: "invalid id" });
   } else {
       next(err);
   }

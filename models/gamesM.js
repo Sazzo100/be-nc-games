@@ -20,3 +20,24 @@ exports.selectReviews = () => {
       return result.rows;
     });
 };
+
+exports.selectReviewById = (review_id) => {
+  return pool
+    .query(
+      `SELECT  reviews.review_id, title, 
+      review_body, designer, review_img_url, 
+      reviews.votes, reviews.category, owner, 
+      created_at FROM reviews
+        WHERE reviews.review_id=$1;`,
+      [review_id]
+    )
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Review ${review_id} not found`,
+        });
+      } 
+      return result.rows[0];
+    });
+};
