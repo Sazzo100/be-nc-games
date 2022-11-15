@@ -1,5 +1,5 @@
 const pool = require("../db/connection.js");
-const { checkReviewExists } = require("../db/db.js");
+const { checkReviewExists, checkUsernameExists } = require("../db/db.js");
 
 exports.selectCategories = () => {
   return pool.query("SELECT * FROM categories;").then((result) => {
@@ -56,5 +56,30 @@ exports.selectComments = (review_id) => {
       .then((result) => {
         return result.rows;
       });
+  });
+};
+
+exports.insertComment = (args) => {
+  return checkReviewExists(args[0]).then(() => {
+    return checkUsernameExists(args[1]).then(() => {
+      return pool
+        .query(
+          `
+        INSERT INTO comments (review_id, author, body)
+        VALUES ($1, $2, $3)
+        RETURNING *
+      ;`,
+          args
+        )
+        .then((result) => {
+          if (result.rows.length === 0) {
+            return Promise.reject({
+              status: 404,
+              msg: `Review ${review_id} not found`,
+            });
+          }
+          return result.rows[0];
+        });
+    });
   });
 };

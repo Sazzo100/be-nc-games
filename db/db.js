@@ -11,3 +11,15 @@ exports.checkReviewExists = (review_id) => {
         }
     });
 }
+
+exports.checkUsernameExists = (username) => {
+    return pool.query(
+        ` SELECT * FROM users
+        WHERE username = $1;`, [username]
+    )
+    .then((res) => {
+        if (res.rows.length === 0) {
+            return Promise.reject({status: 404, msg: `user ${username} does not exist`})
+        }
+    });
+}
