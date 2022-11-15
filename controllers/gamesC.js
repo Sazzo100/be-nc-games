@@ -2,6 +2,7 @@ const {
   selectCategories,
   selectReviews,
   selectReviewById,
+  selectComments,
 } = require("../models/gamesM.js");
 
 exports.getCategories = (req, res, next) => {
@@ -34,3 +35,14 @@ exports.getReviewById = (req, res, next) => {
       next(err);
     });
 };
+
+exports.getComments = (req, res, next) => {
+    const { review_id } = req.params;
+    selectComments(review_id)
+      .then((comments) => {
+        res.status(200).send({ comments: comments });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  };

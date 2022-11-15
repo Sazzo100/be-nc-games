@@ -105,3 +105,50 @@ describe("3. GET /api/reviews/:review_id", () => {
       });
   });
 });
+
+describe("/api/reviews/:review_id/comments", () => {
+  describe("GET", () => {
+    test("200 - returns array of objects containing relevant fields about the comments on a review sorted by age", () => {
+      return request(app)
+        .get("/api/reviews/2/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          comments.forEach((comment) => {
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              review_id: expect.any(Number),
+            });
+          });
+          expect(comments).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+    test("200 - returns an empty array if selected review has no comments", () => {
+      return request(app)
+        .get("/api/reviews/1/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toEqual([]);
+        });
+    });
+    test("400 - returns an error message if review_id is not a number", () => {
+      return request(app)
+        .get("/api/reviews/dghghfhs/comments")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid id");
+        });
+    });
+    test("404 - returns an error message if review_id does not exist", () => {
+      return request(app)
+        .get("/api/reviews/999/comments")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("review 999 does not exist");
+        });
+    });
+  });
+});

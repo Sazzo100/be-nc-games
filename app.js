@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const {
-  getCategories, getReviews, getReviewById,
+  getCategories, getReviews, getReviewById, getComments,
 } = require('./controllers/gamesC.js');
 
 app.use(express.json());
@@ -9,6 +9,7 @@ app.use(express.json());
 app.get('/api/categories', getCategories);
 app.get('/api/reviews', getReviews);
 app.get('/api/reviews/:review_id', getReviewById);
+app.get('/api/reviews/:review_id/comments', getComments);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Route not found" });
