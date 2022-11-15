@@ -28,8 +28,7 @@ exports.selectReviewById = (review_id) => {
       review_body, designer, review_img_url, 
       reviews.votes, reviews.category, owner, 
       created_at FROM reviews
-        WHERE reviews.review_id=$1
-        GROUP BY reviews.review_id;`,
+        WHERE reviews.review_id=$1;`,
       [review_id]
     )
     .then((result) => {
