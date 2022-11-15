@@ -1,4 +1,5 @@
 const pool = require("../db/connection.js");
+const { checkReviewExists } = require("../db/db.js");
 
 exports.selectCategories = () => {
   return pool.query("SELECT * FROM categories;").then((result) => {
@@ -37,7 +38,23 @@ exports.selectReviewById = (review_id) => {
           status: 404,
           msg: `Review ${review_id} not found`,
         });
-      } 
+      }
       return result.rows[0];
     });
+};
+
+exports.selectComments = (review_id) => {
+  return checkReviewExists(review_id).then(() => {
+    return pool
+      .query(
+        `SELECT  comment_id, comments.votes, comments.created_at,
+      comments.author, comments.body, comments.review_id FROM comments
+        WHERE comments.review_id = $1
+        ORDER BY comments.created_at DESC;`,
+        [review_id]
+      )
+      .then((result) => {
+        return result.rows;
+      });
+  });
 };
