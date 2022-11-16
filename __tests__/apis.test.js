@@ -13,7 +13,7 @@ afterAll(() => {
   return db.end();
 });
 
-describe("1. GET /api/categories", () => {
+describe("3. GET /api/categories", () => {
   test("status: 200, responds with an array of category objects including slugs and descriptions", () => {
     return request(app)
       .get("/api/categories")
@@ -32,7 +32,7 @@ describe("1. GET /api/categories", () => {
   });
 });
 
-describe("2. GET /api/reviews", () => {
+describe("4. GET /api/reviews", () => {
   test("status: 200, responds with an array of review objects", () => {
     return request(app)
       .get("/api/reviews")
@@ -68,7 +68,7 @@ describe("2. GET /api/reviews", () => {
   });
 });
 
-describe("3. GET /api/reviews/:review_id", () => {
+describe("5. GET /api/reviews/:review_id", () => {
   test("200 - responds with a single object with correct information", () => {
     request(app)
       .get("/api/reviews/1")
@@ -106,7 +106,7 @@ describe("3. GET /api/reviews/:review_id", () => {
   });
 });
 
-describe("/api/reviews/:review_id/comments", () => {
+describe("6. GET /api/reviews/:review_id/comments", () => {
   describe("GET", () => {
     test("200 - returns array of objects containing relevant fields about the comments on a review sorted by age", () => {
       return request(app)
@@ -153,7 +153,7 @@ describe("/api/reviews/:review_id/comments", () => {
   });
 });
 
-describe("POST a new comment to comments table", () => {
+describe("7. POST /api/reviews/:review_id/comments", () => {
   test("201 - a correctly formatted request body receives a 201 response and a copy of the created comment", () => {
     return request(app)
       .post("/api/reviews/1/comments")
@@ -222,3 +222,104 @@ describe("POST a new comment to comments table", () => {
       });
   });
 });
+
+describe("8. PATCH /api/reviews/:review_id", () => {
+  test("status code 200, responds with an increased vote count", () => {
+    const newVote = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/reviews/1")
+      .send(newVote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.review).toMatchObject({
+          review_id: 1,
+          title: "Agricola",
+          category: "euro game",
+          designer: "Uwe Rosenberg",
+          owner: "mallionaire",
+          review_body: "Farmyard fun!",
+          review_img_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          created_at: "2021-01-18T10:00:20.514Z",
+          votes: 11,
+        });
+      });
+  });
+
+  test("status code 200, responds with a decreased vote count", () => {
+    const newVote = { inc_votes: -99 };
+    return request(app)
+      .patch("/api/reviews/1")
+      .send(newVote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.review).toEqual({
+          review_id: 1,
+          title: "Agricola",
+          category: "euro game",
+          designer: "Uwe Rosenberg",
+          owner: "mallionaire",
+          review_body: "Farmyard fun!",
+          review_img_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          created_at: "2021-01-18T10:00:20.514Z",
+          votes: -98,
+        });
+      });
+  });
+
+  test("400 - returns an error message if review_id is out of bounds", () => {
+    return request(app)
+      .patch("/api/reviews/999")
+      .send({ inc_votes: 15 })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("review 999 does not exist");
+      });
+  });
+  
+  test("400 - returns an error message if review_id is not a number", () => {
+    return request(app)
+    .patch("/api/reviews/skfuhsuif")
+    .send({ inc_votes: 15 })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid id");
+      });
+  });
+
+  test("400 - returns an error message if  is not a number", () => {
+    return request(app)
+    .patch("/api/reviews/skfuhsuif")
+    .send({ inc_votes: 'votehehe' })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("votehehe is not a number");
+      });
+  });
+
+  test("400 - returns an error message if request body is not correctly formatted (extra fields)", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({
+        inc_votes: 10,
+        extraField: "yo",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("incorrectly formatted request body");
+      });
+  });
+  test("400 - returns an error message if request body is not correctly formatted (lacking fields)", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({
+        inc_votes: '',
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("incorrectly formatted request body");
+      });
+  });
+});
+
