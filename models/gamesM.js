@@ -83,3 +83,18 @@ exports.insertComment = (args) => {
     });
   });
 };
+
+exports.updateReview = (review_id, votes) => {
+  return checkReviewExists(review_id).then(() => {
+    return pool
+      .query(
+        `UPDATE reviews 
+      SET votes = votes + $1 WHERE review_id = $2 
+      RETURNING *`,
+        [votes, review_id]
+      )
+      .then((review) => {
+        return review.rows[0];
+      });
+  });
+};
