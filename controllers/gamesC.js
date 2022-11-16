@@ -74,6 +74,14 @@ exports.postComment = (req, res, next) => {
 exports.patchReview = (req, res, next) => {
   const { review_id } = req.params;
   const { inc_votes } = req.body;
+  if (
+    !req.body ||
+    !req.body.inc_votes ||
+    Object.keys(req.body).length !== 1
+  ) {
+    next({ status: 400, msg: "incorrectly formatted request body" });
+    return;
+  }
 
   if (isNaN(inc_votes)) {
     return next({

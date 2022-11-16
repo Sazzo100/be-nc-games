@@ -297,5 +297,29 @@ describe("8. PATCH /api/reviews/:review_id", () => {
         expect(msg).toBe("votehehe is not a number");
       });
   });
+
+  test("400 - returns an error message if request body is not correctly formatted (extra fields)", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({
+        inc_votes: 10,
+        extraField: "yo",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("incorrectly formatted request body");
+      });
+  });
+  test("400 - returns an error message if request body is not correctly formatted (lacking fields)", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({
+        inc_votes: '',
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("incorrectly formatted request body");
+      });
+  });
 });
 
