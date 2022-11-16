@@ -5,6 +5,7 @@ const {
   selectComments,
   insertComment,
   updateReview,
+  selectUsers,
 } = require("../models/gamesM.js");
 
 exports.getCategories = (req, res, next) => {
@@ -74,11 +75,7 @@ exports.postComment = (req, res, next) => {
 exports.patchReview = (req, res, next) => {
   const { review_id } = req.params;
   const { inc_votes } = req.body;
-  if (
-    !req.body ||
-    !req.body.inc_votes ||
-    Object.keys(req.body).length !== 1
-  ) {
+  if (!req.body || !req.body.inc_votes || Object.keys(req.body).length !== 1) {
     next({ status: 400, msg: "incorrectly formatted request body" });
     return;
   }
@@ -96,3 +93,13 @@ exports.patchReview = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.getUsers = (req, res, next) => {
+  selectUsers()
+    .then((users) => {
+      res.status(200).send({ users: users });
+    })
+    .catch(next);
+};
+
+
