@@ -152,3 +152,73 @@ describe("/api/reviews/:review_id/comments", () => {
     });
   });
 });
+
+describe("POST a new comment to comments table", () => {
+  test("201 - a correctly formatted request body receives a 201 response and a copy of the created comment", () => {
+    return request(app)
+      .post("/api/reviews/1/comments")
+      .send({ username: "mallionaire", body: "weeee" })
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          body: "weeee",
+          review_id: 1,
+          author: "mallionaire",
+          votes: 0,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400 - returns an error message if review_id is out of bounds", () => {
+    return request(app)
+      .post("/api/reviews/100/comments")
+      .send({ username: "mallionaire", body: "meh" })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("review 100 does not exist");
+      });
+  });
+  test("400 - returns an error message if review_id is not a number", () => {
+    return request(app)
+      .post("/api/reviews/reviewPlease/comments")
+      .send({ username: "mallionaire", body: "shit" })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid id");
+      });
+  });
+  test("404 - returns an error message if passed username does not exist", () => {
+    return request(app)
+      .post("/api/reviews/1/comments")
+      .send({ username: "poo", body: "mid" })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user poo does not exist");
+      });
+  });
+  test("400 - returns an error message if request body is not correctly formatted (extra fields)", () => {
+    return request(app)
+      .post("/api/reviews/1/comments")
+      .send({
+        username: "mallionaire",
+        body: "This is a comment",
+        extraField: "Bonjour",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("incorrectly formatted comment body");
+      });
+  });
+  test("400 - returns an error message if request body is not correctly formatted (lacking fields)", () => {
+    return request(app)
+      .post("/api/reviews/1/comments")
+      .send({
+        username: "mallionaire",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("incorrectly formatted comment body");
+      });
+  });
+});
