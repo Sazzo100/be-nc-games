@@ -27,9 +27,12 @@ exports.selectReviewById = (review_id) => {
     .query(
       `SELECT  reviews.review_id, title, 
       review_body, designer, review_img_url, 
-      reviews.votes, reviews.category, owner, 
-      created_at FROM reviews
-        WHERE reviews.review_id=$1;`,
+      reviews.votes, reviews.category, owner, CAST (COUNT(comments) AS INTEGER) AS comment_count,
+      reviews.created_at FROM reviews
+      LEFT JOIN comments
+      ON reviews.review_id = comments.review_id
+        WHERE reviews.review_id=$1
+        GROUP BY reviews.review_id;`,
       [review_id]
     )
     .then((result) => {
@@ -98,3 +101,10 @@ exports.updateReview = (review_id, votes) => {
       });
   });
 };
+
+exports.selectUsers = () => {
+  return pool.query(`SELECT * FROM users`).then((users) => {
+    return users.rows;
+  });
+};
+

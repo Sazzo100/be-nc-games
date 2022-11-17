@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const {
-  getCategories, getReviews, getReviewById, getComments, postComment, patchReview,
+  getCategories, getReviews, getReviewById, getComments, postComment, patchReview, getUsers,
 } = require('./controllers/gamesC.js');
 
 app.use(express.json());
@@ -12,7 +12,7 @@ app.get('/api/reviews/:review_id', getReviewById);
 app.get('/api/reviews/:review_id/comments', getComments);
 app.post('/api/reviews/:review_id/comments', postComment);
 app.patch('/api/reviews/:review_id', patchReview);
-//app.get('/api/users', getUsers);
+app.get('/api/users', getUsers);
 //app.delete('/api/comments/:comment_id', deleteComment);
 
 

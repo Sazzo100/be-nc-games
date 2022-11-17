@@ -69,8 +69,8 @@ describe("4. GET /api/reviews", () => {
 });
 
 describe("5. GET /api/reviews/:review_id", () => {
-  test("200 - responds with a single object with correct information", () => {
-    request(app)
+  test("200 - responds with a single object with correct information discluding comment count", () => {
+    return request(app)
       .get("/api/reviews/1")
       .expect(200)
       .then(({ body: { review } }) => {
@@ -85,6 +85,26 @@ describe("5. GET /api/reviews/:review_id", () => {
             "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
           created_at: "2021-01-18T10:00:20.514Z",
           votes: 1,
+        });
+      });
+  });
+  test("200 - responds with a single object with correct information including comment count", () => {
+    return request(app)
+      .get("/api/reviews/1")
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(review).toMatchObject({
+          review_id: 1,
+          title: "Agricola",
+          category: "euro game",
+          designer: "Uwe Rosenberg",
+          owner: "mallionaire",
+          review_body: "Farmyard fun!",
+          review_img_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          created_at: "2021-01-18T10:00:20.514Z",
+          votes: 1,
+          comment_count: 0,
         });
       });
   });
@@ -277,11 +297,11 @@ describe("8. PATCH /api/reviews/:review_id", () => {
         expect(msg).toBe("review 999 does not exist");
       });
   });
-  
+
   test("400 - returns an error message if review_id is not a number", () => {
     return request(app)
-    .patch("/api/reviews/skfuhsuif")
-    .send({ inc_votes: 15 })
+      .patch("/api/reviews/skfuhsuif")
+      .send({ inc_votes: 15 })
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("invalid id");
@@ -290,8 +310,8 @@ describe("8. PATCH /api/reviews/:review_id", () => {
 
   test("400 - returns an error message if  is not a number", () => {
     return request(app)
-    .patch("/api/reviews/skfuhsuif")
-    .send({ inc_votes: 'votehehe' })
+      .patch("/api/reviews/skfuhsuif")
+      .send({ inc_votes: "votehehe" })
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("votehehe is not a number");
@@ -314,7 +334,7 @@ describe("8. PATCH /api/reviews/:review_id", () => {
     return request(app)
       .patch("/api/reviews/1")
       .send({
-        inc_votes: '',
+        inc_votes: "",
       })
       .expect(400)
       .then(({ body: { msg } }) => {
@@ -323,3 +343,24 @@ describe("8. PATCH /api/reviews/:review_id", () => {
   });
 });
 
+describe("9. GET /api/users", () => {
+  test("status code 200, responds with an array of user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toBeInstanceOf(Array);
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
