@@ -1,5 +1,9 @@
 const pool = require("../db/connection.js");
-const { checkReviewExists, checkUsernameExists } = require("../db/db.js");
+const {
+  checkReviewExists,
+  checkUsernameExists,
+  checkCategoryExists,
+} = require("../db/db.js");
 
 exports.selectCategories = () => {
   return pool.query("SELECT * FROM categories;").then((result) => {
@@ -55,13 +59,6 @@ exports.selectReviews = (sort_by = "created_at", order = "desc", category) => {
     "designer",
   ];
 
-  const validCategory = [
-    "euro game",
-    "dexterity",
-    "social deduction",
-    "children's games"
-  ]
-
   let querySoFar = `SELECT 
 
   title, 
@@ -77,24 +74,19 @@ exports.selectReviews = (sort_by = "created_at", order = "desc", category) => {
   LEFT JOIN comments 
   ON reviews.review_id = comments.review_id`;
 
-  if (category && !validCategory.includes(category)) {
-    return Promise.reject({
-      status: 404,
-      msg: "Category does not exist",
-    });
-}
-
+  let queryValues = [];
   if (category) {
-    querySoFar += ` WHERE category = '${category}'`;
+    querySoFar += ` WHERE category = $1`;
+    queryValues.push(category);
   }
 
   querySoFar += ` GROUP BY reviews.review_id`;
 
   if (!validSortBy.includes(sort_by)) {
-      return Promise.reject({
-        status: 400,
-        msg: "Invalid sort by",
-      });
+    return Promise.reject({
+      status: 400,
+      msg: "Invalid sort by",
+    });
   }
 
   if (sort_by === "review_id") {
@@ -116,7 +108,6 @@ exports.selectReviews = (sort_by = "created_at", order = "desc", category) => {
     sort_by = "title::bytea";
   }
 
-
   if (order.toLowerCase() === "asc") {
     querySoFar += ` ORDER BY ${sort_by} ASC`;
   } else if (order.toLowerCase() === "desc") {
@@ -129,12 +120,12 @@ exports.selectReviews = (sort_by = "created_at", order = "desc", category) => {
   }
 
   querySoFar += `;`;
+ return checkCategoryExists(category).then(() => {
 
-  console.log(querySoFar);
-
-  return pool.query(querySoFar).then((reviews) => {
-    return reviews.rows;
-  });
+    return pool.query(querySoFar, queryValues).then((reviews) => {
+      return reviews.rows;
+    });
+ });
 };
 
 exports.selectReviewById = (review_id) => {

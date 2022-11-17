@@ -32,7 +32,7 @@ describe("3. GET /api/categories", () => {
   });
 });
 
-describe("4. GET /api/reviews", () => {
+describe("4,11. GET /api/reviews", () => {
   test("status: 200, responds with an array of review objects", () => {
     return request(app)
       .get("/api/reviews")
@@ -75,20 +75,6 @@ describe("4. GET /api/reviews", () => {
         expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(13);
         expect(reviews).toBeSortedBy("created_at", { ascending: true });
-        reviews.forEach((review) => {
-          expect(review).toEqual(
-            expect.objectContaining({
-              owner: expect.any(String),
-              title: expect.any(String),
-              review_id: expect.any(Number),
-              category: expect.any(String),
-              review_img_url: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              comment_count: expect.any(Number),
-            })
-          );
-        });
       });
   });
   test("responds with reviews ordered by ascending title", () => {
@@ -100,20 +86,6 @@ describe("4. GET /api/reviews", () => {
         expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(13);
         expect(reviews).toBeSortedBy("title", { ascending: true });
-        reviews.forEach((review) => {
-          expect(review).toEqual(
-            expect.objectContaining({
-              owner: expect.any(String),
-              title: expect.any(String),
-              review_id: expect.any(Number),
-              category: expect.any(String),
-              review_img_url: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              comment_count: expect.any(Number),
-            })
-          );
-        });
       });
   });
   test("responds with reviews that come under a certain category", () => {
@@ -125,18 +97,7 @@ describe("4. GET /api/reviews", () => {
         expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(1);
         reviews.forEach((review) => {
-          expect(review).toEqual(
-            expect.objectContaining({
-              owner: expect.any(String),
-              title: expect.any(String),
-              review_id: expect.any(Number),
-              category: "dexterity",
-              review_img_url: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              comment_count: expect.any(Number),
-            })
-          );
+          expect(review.category).toBe("dexterity");
         });
       });
   });
@@ -162,6 +123,15 @@ describe("4. GET /api/reviews", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toEqual("Category does not exist");
+      });
+  });
+  test("200: empty array when no reviews for this category", () => {
+    return request(app)
+      .get("/api/reviews?category=children's games")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toEqual([]);
       });
   });
 });

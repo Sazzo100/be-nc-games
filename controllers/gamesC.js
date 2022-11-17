@@ -22,9 +22,6 @@ exports.getReviews = (req, res, next) => {
   const { category, sort_by, order } = req.query;
   selectReviews(sort_by, order, category)
     .then((reviews) => {
-      if (reviews.length === 0) {
-        return Promise.reject({ status: 404, msg: "Category does not exist" });
-      }
       res.status(200).send({ reviews: reviews });
     })
     .catch((err) => {

@@ -23,3 +23,15 @@ exports.checkUsernameExists = (username) => {
         }
     });
 }
+
+exports.checkCategoryExists = (category) => {
+    return pool.query(
+        ` SELECT * FROM categories
+        WHERE categories.slug = $1;`, [category]
+    )
+    .then((res) => {
+        if (res.rows.length === 0 && category != undefined) {
+            return Promise.reject({status: 404, msg: `Category does not exist`})
+        }
+    });
+}
