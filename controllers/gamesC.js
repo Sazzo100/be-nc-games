@@ -19,8 +19,12 @@ exports.getCategories = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  selectReviews()
+  const { category, sort_by, order } = req.query;
+  selectReviews(sort_by, order, category)
     .then((reviews) => {
+      if (reviews.length === 0) {
+        return Promise.reject({ status: 404, msg: "Category does not exist" });
+      }
       res.status(200).send({ reviews: reviews });
     })
     .catch((err) => {
@@ -101,5 +105,3 @@ exports.getUsers = (req, res, next) => {
     })
     .catch(next);
 };
-
-
