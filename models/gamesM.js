@@ -11,42 +11,6 @@ exports.selectCategories = () => {
   });
 };
 
-// exports.selectReviews = (category, sort_by, order) => {
-//   return pool
-//     .query(
-//       `SELECT
-
-//       title,
-//       category,
-//       designer,
-//       owner,
-//       review_img_url,
-//       reviews.created_at,
-//       reviews.review_id,
-//       reviews.votes,
-//       CAST(COUNT(comments.comment_id) AS INTEGER) as comment_count FROM reviews
-
-//       LEFT JOIN comments
-
-//         ON reviews.review_id = comments.review_id
-
-//       ${category ? `WHERE reviews.category=$1` : ``}
-//       GROUP BY reviews.review_id
-//       ORDER BY reviews.${sort_by} ${order}
-//     ;`,
-//       category ? [category] : []
-//     )
-//     .then((result) => {
-//       if (result.rows.length > 0) {
-//         return result.rows;
-//       } else if (category) {
-//         return [];
-//       } else {
-//         throw { status: 404, msg: "No reviews found" };
-//       }
-//     });
-// };
-
 exports.selectReviews = (sort_by = "created_at", order = "desc", category) => {
   const validSortBy = [
     "created_at",
@@ -120,12 +84,13 @@ exports.selectReviews = (sort_by = "created_at", order = "desc", category) => {
   }
 
   querySoFar += `;`;
- return checkCategoryExists(category).then(() => {
-
-    return pool.query(querySoFar, queryValues).then((reviews) => {
+  return checkCategoryExists(category)
+    .then(() => {
+      return pool.query(querySoFar, queryValues);
+    })
+    .then((reviews) => {
       return reviews.rows;
     });
- });
 };
 
 exports.selectReviewById = (review_id) => {
