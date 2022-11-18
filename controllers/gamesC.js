@@ -19,7 +19,8 @@ exports.getCategories = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  selectReviews()
+  const { category, sort_by, order } = req.query;
+  selectReviews(sort_by, order, category)
     .then((reviews) => {
       res.status(200).send({ reviews: reviews });
     })
@@ -101,5 +102,3 @@ exports.getUsers = (req, res, next) => {
     })
     .catch(next);
 };
-
-
