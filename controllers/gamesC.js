@@ -6,6 +6,7 @@ const {
   insertComment,
   updateReview,
   selectUsers,
+  removeComment,
 } = require("../models/gamesM.js");
 
 exports.getCategories = (req, res, next) => {
@@ -99,6 +100,23 @@ exports.getUsers = (req, res, next) => {
   selectUsers()
     .then((users) => {
       res.status(200).send({ users: users });
+    })
+    .catch(next);
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  if (isNaN(comment_id)) {
+    return next({
+      status: 404,
+      msg: `Invalid Comment ID!`,
+    });
+  }
+
+  removeComment(comment_id)
+    .then(() => {
+      res.status(204).send();
     })
     .catch(next);
 };
