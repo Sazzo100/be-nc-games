@@ -136,7 +136,7 @@ describe("4,11. GET /api/reviews", () => {
   });
 });
 
-describe("5. GET /api/reviews/:review_id", () => {
+describe("5,10. GET /api/reviews/:review_id", () => {
   test("200 - responds with a single object with correct information discluding comment count", () => {
     return request(app)
       .get("/api/reviews/1")
@@ -431,4 +431,31 @@ describe("9. GET /api/users", () => {
         });
       });
   });
+});
+
+describe("12. DELETE /api/comments/:comment_id", () => {
+
+  test("task 12: status 204, responds with an empty response body", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+
+  test("comment does not exist", () => {
+    return request(app)
+      .delete("/api/comments/333")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment does not exist");
+      });
+  });
+
+  test('comment_id is not a number', () => {
+    return request(app)
+        .delete("/api/comments/yoo")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe(
+                "Invalid Comment ID!"
+            );
+        });
+});
 });
