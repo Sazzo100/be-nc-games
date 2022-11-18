@@ -35,15 +35,3 @@ exports.checkCategoryExists = (category) => {
         }
     });
 }
-
-exports.checkCommentExists = (comment_id) => {
-    return pool.query(
-        ` SELECT * FROM comments
-        WHERE comments.comment_id = $1;`, [comment_id]
-    )
-    .then((res) => {
-        if (res.rows.length === 0) {
-            return Promise.reject({status: 404, msg: `Comment does not exist`})
-        }
-    });
-}

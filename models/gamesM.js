@@ -3,7 +3,6 @@ const {
   checkReviewExists,
   checkUsernameExists,
   checkCategoryExists,
-  checkCommentExists,
 } = require("../db/db.js");
 
 exports.selectCategories = () => {
@@ -181,11 +180,13 @@ exports.selectUsers = () => {
 };
 
 exports.removeComment = (comment_id) => {
-  return checkCommentExists(comment_id).then(() => {
-    return pool
-      .query(`DELETE FROM comments WHERE comment_id = $1`, [comment_id])
-      .then((comment) => {
-        return comment.rows[0];
-      });
-  });
+  return pool
+    .query(`DELETE FROM comments WHERE comment_id = $1`, [comment_id])
+    .then((comment) => {
+      if (comment.rowCount === 0) {
+        return Promise.reject({status: 404, msg: 'Comment does not exist' })
+      }
+      console.log(comment)
+      return comment.rows[0];
+    });
 };
